@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Taxes\Calculator;
+use App\Taxes\Detector;
 use Cocur\Slugify\Slugify;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,8 +24,10 @@ class HelloController
     /**
      * @Route ("/hello/{firstname?World}", name="hello_name", methods={"GET"})
      */
-    public function hello($firstname, Slugify $slugify)
+    public function hello($firstname, Slugify $slugify, Detector $detector)
     {
+        dump($detector->detect(101));
+        dump($detector->detect(10));
         dump($slugify->slugify("Hello world"));
         $this->logger->info("mon message de log");
         $tva = $this->calculator->calcul(100);
