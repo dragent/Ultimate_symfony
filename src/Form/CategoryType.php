@@ -21,7 +21,7 @@ class CategoryType extends AbstractType
                     "attr" => [
                         "placeholder" => "Tapez le nom du produit"
                     ],
-                    "required" => true
+                    "required" => false
                 ]
             );
     }
