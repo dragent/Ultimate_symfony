@@ -2,20 +2,24 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Category;
 use Faker\Factory;
+use App\Entity\User;
 use App\Entity\Product;
+use App\Entity\Category;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class AppFixtures extends Fixture
 {
     protected $slugger;
+    protected $encoder;
 
-    public function __construct(SluggerInterface $slugger)
+    public function __construct(SluggerInterface $slugger, UserPasswordEncoderInterface $encoder)
     {
         $this->slugger = $slugger;
+        $this->encoder = $encoder;
     }
 
     public function load(ObjectManager $manager): void
@@ -40,7 +44,19 @@ class AppFixtures extends Fixture
                 $manager->persist($product);
             }
         }
-
+        for ($u = 0; $u < 5; $u++) {
+            $user = new User();
+            $user->setEmail("user$u@gmail.com")
+                ->setFullName($faker->name())
+                ->setPassword($this->encoder->encodePassword($user, "password"));
+            $manager->persist($user);
+        }
+        $admin = new User();
+        $admin->setEmail("admin@gmail.com")
+            ->setPassword($this->encoder->encodePassword($admin, "password"))
+            ->setFullName("admin")
+            ->setRoles(["ROLE_ADMIN"]);
+        $manager->persist($admin);
 
         $manager->flush();
     }
