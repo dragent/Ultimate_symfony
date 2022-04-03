@@ -11,7 +11,10 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ProductType extends AbstractType
 {
@@ -23,27 +26,29 @@ class ProductType extends AbstractType
                 "attr" => [
                     "placeholder" => "Tapez le nom du produit"
                 ],
-                "required" => true,
+                "required" => false
             ])
             ->add("shortDescription", TextareaType::class, [
                 "label" => "Description courte",
                 "attr" => [
                     "placeholder" => "Tapez une description assez courte mais parlante pour le visiteur"
                 ],
-                "required" => true
+                "required" => false
             ])
             ->add("price", MoneyType::class, [
                 "label" => "Prix du produit",
                 "attr" => [
-                    "placeholder" => "Tapez le prix du produit en euro"
+                    "placeholder" => "Tapez le prix du produits en euro"
                 ],
-                "required" => true
+                "divisor" => 100,
+                "required" => false
             ])
             ->add("mainPicture", UrlType::class, [
                 "label" => "image du produit",
                 "attr" => [
                     "placeholder" => "Tapez l'url d'une image"
-                ]
+                ],
+                "required" => false
             ])
             ->add("category", EntityType::class, [
                 "label" => "Catégorie",
@@ -53,7 +58,24 @@ class ProductType extends AbstractType
                     return ucfirst($category->getName());
                 }
 
-            ]);;
+            ]);
+        /* $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) {
+            $form = $event->getForm();
+
+            /** @var Product *//*
+            $product = $event->getData();
+            if ($product->getId() === null) {
+                $form->add("category", EntityType::class, [
+                    "label" => "Catégorie",
+                    "placeholder" => "-- Choisir une catégorie",
+                    "class" => Category::class,
+                    "choice_label" => function (Category $category) {
+                        return ucfirst($category->getName());
+                    }
+
+                ]);
+            }
+        }); */
     }
 
     public function configureOptions(OptionsResolver $resolver): void

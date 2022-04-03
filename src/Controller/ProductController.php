@@ -4,14 +4,21 @@ namespace App\Controller;
 
 use App\Entity\Product;
 use App\Form\ProductType;
-use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\Validator\Constraints\Collection;
+use Symfony\Component\Validator\Constraints\GreaterThan;
+use Symfony\Component\Validator\Constraints\LessThanOrEqual;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController
 {
@@ -55,7 +62,7 @@ class ProductController extends AbstractController
         $product = new Product();
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $product->setSlug(strtolower($slugger->slug($product->getName())));
             $em->persist($product);
             $em->flush();
@@ -78,26 +85,20 @@ class ProductController extends AbstractController
         ProductRepository $productRepository,
         Request $request,
         EntityManagerInterface $em,
-        SluggerInterface $slugger
+        SluggerInterface $slugger,
+        ValidatorInterface $validator
     ) {
-
         $product = $productRepository->find($id);
         $form = $this->createForm(ProductType::class, $product);
         $form->handleRequest($request);
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $product->setSlug(strtolower($slugger->slug($product->getName())));
             $em->flush();
-            /*  $url = $urlGenerator->generate('product_show', [
-                'category_slug' => $product->getCategory()->getSlug(),
-                'product_slug' => $product->getSlug(),
-            ]);
-            $response = new RedirectResponse($url);*/
             return $this->redirectToRoute('product_show', [
                 'category_slug' => $product->getCategory()->getSlug(),
                 'product_slug' => $product->getSlug()
             ]);
         }
-        //$form->setData($product);
         $formView = $form->createView();
         return $this->render('product/edit.html.twig', [
             "product" => $product,
