@@ -9,8 +9,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 class CategoryController extends AbstractController
 {
@@ -46,8 +48,22 @@ class CategoryController extends AbstractController
      */
     public function edit(int $id, CategoryRepository $categoryRepository, Request $request, SluggerInterface $slugger, EntityManagerInterface $em): Response
     {
-
+        // $user = $security->getUser();
+        // if ($user === null) {
+        //     return $this->redirectToRoute("security_login");
+        // }
+        // if (!in_array("ROLE_ADMIN", $user->getRoles())) {
+        //     throw new AccessDeniedHttpException("Vous n'avez pas le droit d'acceder à cette ressource.");
+        // // }
+        // if ($this->getUser() === null) {
+        //     return $this->redirectToRoute("security_login");
+        // }
+        // if (!$this->isGranted("ROLE_ADMIN")) {
+        //     throw new AccessDeniedHttpException("Vous n'avez pas le droit d'acceder à cette ressource.");
+        // }
+        // $this->denyAccessUnlessGranted("ROLE_ADMIN", null, "Vous n'avez le droit d'accéder à cette ressouce");
         $category = $categoryRepository->find($id);
+        // $this->denyAccessUnlessGranted("CAN_EDIT", $category);
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
