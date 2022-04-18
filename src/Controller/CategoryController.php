@@ -44,6 +44,21 @@ class CategoryController extends AbstractController
     }
 
     /**
+     * @Route("/{slug}", name="category_show", priority=-1)
+     */
+    public function category($slug, CategoryRepository $categoryRepository)
+    {
+        $category = $categoryRepository->findOneBy(["slug" => $slug]);
+        if (!$category) {
+            throw $this->createNotFoundException("La catégorie demandée n'existe pas");
+        }
+        return $this->render('category/show.html.twig', [
+            'slug' => $slug,
+            'category' => $category
+        ]);
+    }
+
+    /**
      * @Route("/admin/category/{id}/edit", name="category_edit")
      */
     public function edit(int $id, CategoryRepository $categoryRepository, Request $request, SluggerInterface $slugger, EntityManagerInterface $em): Response

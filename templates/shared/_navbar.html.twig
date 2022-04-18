@@ -19,6 +19,11 @@
 
 
 			<ul class="navbar-nav">
+				<li class="nav-item">
+					<a href="{{path('cart_show')}}" class="nav-link">
+						<i class="fas fa-shopping-cart"></i>
+						Panier ({{cartService.getItemNumber}})</a>
+				</li>
 				{% if app.user %}
 					<li class="nav-item">
 						<a href="{{path('security_logout')}}" class="btn btn-danger">Deconnexion</a>
