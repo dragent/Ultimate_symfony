@@ -5,12 +5,10 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductType;
 use App\Repository\ProductRepository;
-use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ProductController extends AbstractController
@@ -18,7 +16,7 @@ class ProductController extends AbstractController
 
 
     /**
-     * @Route("/{category_slug}/{product_slug}", name="product_show")
+     * @Route("/{category_slug}/{product_slug}", name="product_show", priority=-1)
      */
     public function show($product_slug, ProductRepository $productRepository)
     {
@@ -65,8 +63,7 @@ class ProductController extends AbstractController
         ProductRepository $productRepository,
         Request $request,
         EntityManagerInterface $em,
-        SluggerInterface $slugger,
-        ValidatorInterface $validator
+        SluggerInterface $slugger
     ) {
         $product = $productRepository->find($id);
         $form = $this->createForm(ProductType::class, $product);

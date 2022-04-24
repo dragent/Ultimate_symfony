@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ProductRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Mapping\ClassMetadata;
@@ -55,6 +57,17 @@ class Product
      * @Assert\Length(min=20,max=255,minMessage="Le description courte du produit doit faire au moins 20 caractères")
      */
     private $shortDescription;
+
+    /**
+     * @ORM\OneToMany(targetEntity=PurchaseItem::class, mappedBy="product")
+     */
+    private $purchaseItems;
+
+    public function __construct()
+    {
+        $this->purchaseItems = new ArrayCollection();
+    }
+
 
     public function getId(): ?int
     {
@@ -132,17 +145,34 @@ class Product
 
         return $this;
     }
-    /*
-    public static function loadValidatorMetadata(ClassMetadata $metadata)
+
+    /**
+     * @return Collection<int, PurchaseItem>
+     */
+    public function getPurchaseItems(): Collection
     {
-        $metadata->addPropertyConstraints("name", [
-            new Assert\NotBlank(["message" => "Le nom du produit est obligatoire"]),
-            new Assert\Length([
-                "min" => 3,
-                "max" => 255,
-                "minMessage" => " Le nom du produit doit faire plus de 3 caracteres"
-            ])
-        ]);
-        $metadata->addPropertyConstraint("price", new Assert\NotBlank(["message" => "Le prix est obligatoire"]));
-    }*/
+        return $this->purchaseItems;
+    }
+
+    public function addPurchaseItem(PurchaseItem $purchaseItem): self
+    {
+        if (!$this->purchaseItems->contains($purchaseItem)) {
+            $this->purchaseItems[] = $purchaseItem;
+            $purchaseItem->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removePurchaseItem(PurchaseItem $purchaseItem): self
+    {
+        if ($this->purchaseItems->removeElement($purchaseItem)) {
+            // set the owning side to null (unless already changed)
+            if ($purchaseItem->getProduct() === $this) {
+                $purchaseItem->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
 }

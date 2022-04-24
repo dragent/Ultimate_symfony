@@ -49,7 +49,7 @@ class CartService
     public function add($id)
     {
         $cart = $this->getCart();
-        if (array_key_exists($id, $cart)) {
+        if (!array_key_exists($id, $cart)) {
 
             $cart[$id] = 0;
         }
@@ -93,6 +93,7 @@ class CartService
 
     /**
      * 
+     * @return cartItem[]
      */
     public function getDetailedCartItems(): array
     {
@@ -131,5 +132,10 @@ class CartService
             return $this->remove($id);
         $cart[$id]--;
         $this->saveCart($cart);
+    }
+
+    public function empty()
+    {
+        $this->saveCart([]);
     }
 }

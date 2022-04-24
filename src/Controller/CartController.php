@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Cart\CartService;
+use App\Form\CartConfirmationType;
 use App\Repository\ProductRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -27,7 +28,7 @@ class CartController extends AbstractController
         $this->productRepository = $productRepository;
     }
     /**
-     * @Route("/cart/add/{id}", name="cart_add", requirements={"id":"\d+"})
+     * @Route("/panier/add/{id}", name="cart_add", requirements={"id":"\d+"})
      */
     public function add($id,  Request $request)
     {
@@ -46,19 +47,20 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/cart", name="cart_show")
+     * @Route("/panier", name="cart_show")
      */
     public function show()
     {
 
         return $this->render("cart/index.html.twig", [
             "items" => $this->cartService->getDetailedCartItems(),
-            "total" => $this->cartService->getTotal()
+            "total" => $this->cartService->getTotal(),
+            "confirmationForm" => $this->createForm(CartConfirmationType::class)->createView()
         ]);
     }
 
     /**
-     * @Route("/cart/delete/{id}", name="cart_delete", requirements={"id":"\d+"})
+     * @Route("/panier/delete/{id}", name="cart_delete", requirements={"id":"\d+"})
      */
     public function delete($id)
     {
@@ -73,7 +75,7 @@ class CartController extends AbstractController
     }
 
     /**
-     * @Route("/cart/decrement/{id}", name="cart_decrement", requirements={"id":"\d+"})
+     * @Route("/panier/decrement/{id}", name="cart_decrement", requirements={"id":"\d+"})
      */
     public function decrement($id)
     {
