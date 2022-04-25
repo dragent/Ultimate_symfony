@@ -1,0 +1,71 @@
+{% extends "base.html.twig" %}
+{% block title %}Payez votre commande
+{% endblock %}
+
+{% block body %}
+	<h1>Paiment de votre commande</h1>
+
+	<form id="payment-form">
+		<div
+			id="payment-element"><!--Stripe.js injects the Payment Element-->
+		</div>
+		<button id="submit" class="btn btn-success">
+			<div class="spinner hidden" id="spinner"></div>
+			<span id="button-text">Payer</span>
+		</button>
+		<div id="payment-message" class="hidden"></div>
+	</form>
+{% endblock %}
+
+
+{% block javascripts %}
+	{{parent()}}
+
+	<script src="https://js.stripe.com/v3/"></script>
+	<script type="text/javascript">
+		const clientSecret ='{{ clientSecret }}';
+const stripe = Stripe("pk_test_oKhSR5nslBRnBZpjO6KuzZeX");
+elements = stripe.elements({clientSecret});
+
+const paymentElement = elements.create("payment");
+paymentElement.mount("#payment-element");
+
+
+async function handleSubmit(e) {
+e.preventDefault();
+setLoading(true);
+
+const {error} = await stripe.confirmPayment({
+elements,
+confirmParams: { // Make sure to change this to your payment completion page
+return_url: "http://localhost:4242/public/checkout.html"
+}
+});
+
+// This point will only be reached if there is an immediate error when
+// confirming the payment. Otherwise, your customer will be redirected to
+// your `return_url`. For some payment methods like iDEAL, your customer will
+// be redirected to an intermediate site first to authorize the payment, then
+// redirected to the `return_url`.
+if (error.type === "card_error" || error.type === "validation_error") {
+showMessage(error.message);
+} else {
+showMessage("An unexpected error occured.");
+}
+
+setLoading(false);
+}
+
+function showMessage(messageText) {
+const messageContainer = document.querySelector("#payment-message");
+
+messageContainer.classList.remove("hidden");
+messageContainer.textContent = messageText;
+
+setTimeout(function () {
+messageContainer.classList.add("hidden");
+messageText.textContent = "";
+}, 4000);
+}
+	</script>
+{% endblock %}

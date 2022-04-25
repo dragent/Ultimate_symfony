@@ -2,11 +2,10 @@
 
 namespace App\Controller\Purchase;
 
-use DateTime;
 use App\Entity\Purchase;
 use App\Cart\CartService;
-use App\Entity\PurchaseItem;
 use App\Form\CartConfirmationType;
+use App\Purchase\PurchasePersister;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,11 +17,13 @@ class PurchasesConfirmationController extends AbstractController
 
     protected $cartService;
     protected $em;
+    protected $persister;
 
-    public function __construct(CartService $cartService, EntityManagerInterface $em)
+    public function __construct(CartService $cartService, EntityManagerInterface $em, PurchasePersister $persister)
     {
         $this->cartService = $cartService;
         $this->em = $em;
+        $this->persister = $persister;
     }
     /**
      * @Route("/commande/confirmation", name="purchase_confirm")
@@ -47,23 +48,7 @@ class PurchasesConfirmationController extends AbstractController
 
         /** @var Purchase */
         $purchase = $form->getData();
-        $purchase->setPurchasedAt(new DateTime())
-            ->setUser($user)
-            ->setTotal($this->cartService->getTotal());
-        $this->em->persist($purchase);
-        foreach ($cartItems as $cartItem) {
-            $purchaseItem = new PurchaseItem();
-            $purchaseItem->setPurchase($purchase)
-                ->setProduct($cartItem->product)
-                ->setProductName($cartItem->product->getName())
-                ->setProductPrice($cartItem->product->getPrice())
-                ->setTotal($cartItem->getTotal())
-                ->setQuantity($cartItem->qty);
-            $this->em->persist($purchaseItem);
-        }
-        $this->cartService->empty();
-        $this->em->flush();
-        $this->addFlash("success", "La commande a bien été enregistrée");
-        return $this->redirectToRoute('purchase_index');
+        $this->persister->storePurchase($purchase);
+        return $this->redirectToRoute('purchase_payment_form', ['id' => $purchase->getId()]);
     }
 }
