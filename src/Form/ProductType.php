@@ -37,7 +37,6 @@ class ProductType extends AbstractType
                 "attr" => [
                     "placeholder" => "Tapez le prix du produits en euro"
                 ],
-                "divisor" => 100,
                 "required" => false
             ])
             ->add("mainPicture", UrlType::class, [

@@ -86,7 +86,7 @@ class CartService
             if (!$product) {
                 continue;
             }
-            $total += $qty * $product->getPrice() / 100;
+            $total += $qty * $product->getPrice();
         }
         return $total;
     }

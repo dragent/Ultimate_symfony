@@ -18,6 +18,6 @@ class CartItem
 
     public function getTotal(): float
     {
-        return $this->product->getPrice() / 100 * $this->qty;
+        return $this->product->getPrice() * $this->qty;
     }
 }
