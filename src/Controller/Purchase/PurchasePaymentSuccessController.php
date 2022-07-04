@@ -6,6 +6,7 @@ use Error;
 use Stripe\Stripe;
 use App\Entity\Purchase;
 use App\Cart\CartService;
+use App\Event\PurchaseSuccessEvent;
 use Stripe\PaymentIntent;
 use App\Repository\PurchaseRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PurchasePaymentSuccessController extends AbstractController
 {
@@ -63,7 +64,7 @@ class PurchasePaymentSuccessController extends AbstractController
      * @Route("/purchase/terminate/{id}", name="purchase_payment_success")
      * IsGranted("ROLE_USER",message="Vous devez être connecté pour valider une commande")
      */
-    public function success(int $id, PurchaseRepository $purchaseRepository, EntityManagerInterface $em, CartService $cartService)
+    public function success(int $id, PurchaseRepository $purchaseRepository, EntityManagerInterface $em, CartService $cartService, EventDispatcherInterface $dispatcher)
     {
         $purchase = $purchaseRepository->find($id);
         if (
@@ -77,6 +78,12 @@ class PurchasePaymentSuccessController extends AbstractController
         $purchase->setStatus(Purchase::STATUS_PAID);
         $em->flush();
         $cartService->empty();
+
+        // Lancer un event qui permet aux autre utilisateurs de réagir à la prise d'une commande
+        $purchaseEvent = new PurchaseSuccessEvent($purchase);
+        $dispatcher->dispatch($purchaseEvent, 'purchase.success');
+
+
         $this->addFlash('success', 'La commande a été payée et confirmée');
         return $this->redirectToRoute("purchase_index");
     }
