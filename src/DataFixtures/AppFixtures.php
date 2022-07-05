@@ -33,8 +33,7 @@ class AppFixtures extends Fixture
         $products = [];
         for ($c = 0; $c < 3; $c++) {
             $category = new Category();
-            $category->setName($faker->department)
-                ->setSlug(strtolower($this->slugger->slug($category->getName())));
+            $category->setName($faker->department);
             $manager->persist($category);
             for ($p = 0; $p < mt_rand(15, 20); $p++) {
                 $product = new Product();
@@ -42,8 +41,7 @@ class AppFixtures extends Fixture
                     ->setPrice($faker->price(4000, 20000))
                     ->setCategory($category)
                     ->setShortDescription($faker->paragraph())
-                    ->setMainPicture($faker->imageUrl(400, 400, true))
-                    ->setSlug(strtolower($this->slugger->slug($product->getName())));
+                    ->setMainPicture($faker->imageUrl(400, 400, true));
                 $manager->persist($product);
                 $products[] = $product;
             }
