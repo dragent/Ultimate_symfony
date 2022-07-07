@@ -37,8 +37,7 @@
 							<td>
 								<a href="{{path('product_show',{ 'category_slug':item.product.category.slug, 'product_slug':item.product.slug })}}">{{item.product.name}}</a>
 							</td>
-							<td>{{item.product.price}}
-								<i class="fas fa-euro-sign"></i>
+							<td>{{item.product.price | amount('$','.',',') }}
 							</td>
 							<td>
 								<a href="{{path('cart_decrement',{'id':item.product.id})}}" class="btn btn-sm btn-primary">
@@ -49,8 +48,7 @@
 									<i class="fas fa-plus"></i>
 								</a>
 							</td>
-							<td>{{item.total}}
-								<i class="fas fa-euro-sign"></i>
+							<td>{{item.total | amount }}
 							</td>
 							<td>
 								<a href="{{ path("cart_delete",{'id':item.product.id}) }}" class="btn btn-sm btn-danger">
@@ -64,8 +62,7 @@
 					<tr>
 						<td colspan="3">Total :
 						</td>
-						<td colspan="2">{{total}}
-							<i class="fas fa-euro-sign"></i>
+						<td colspan="2">{{total | amount}}
 						</td>
 					</tr>
 				</tfoot>
